@@ -1,5 +1,6 @@
 # Phyton-Estudos.py
 Estudos Phyton Copilot
 
-pip install pygame
+**pip install pygame
+**
 
