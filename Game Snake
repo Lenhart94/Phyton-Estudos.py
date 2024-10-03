@@ -1,0 +1,139 @@
+import pygame
+import time
+import random
+
+# Inicializa o pygame
+pygame.init()
+
+# Cores
+branco = (255, 255, 255)
+preto = (0, 0, 0)
+vermelho = (213, 50, 80)
+verde = (0, 255, 0)
+azul = (50, 153, 213)
+
+# Dimensões da janela do jogo
+largura = 600
+altura = 400
+tamanho_bloco = 10
+velocidade = 15
+
+# Fonte do jogo
+fonte = pygame.font.SysFont("bahnschrift", 25)
+
+# Criação da tela
+tela = pygame.display.set_mode((largura, altura))
+pygame.display.set_caption('Jogo da Cobrinha')
+
+# Relógio do jogo
+clock = pygame.time.Clock()
+
+# Função para mostrar a pontuação
+def mostrar_pontuacao(pontos):
+    valor = fonte.render("Pontuação: " + str(pontos), True, azul)
+    tela.blit(valor, [0, 0])
+
+# Função para desenhar a cobrinha
+def desenhar_cobrinha(tamanho_bloco, lista_cobra):
+    for bloco in lista_cobra:
+        pygame.draw.rect(tela, verde, [bloco[0], bloco[1], tamanho_bloco, tamanho_bloco])
+
+# Função principal do jogo
+def gameLoop():
+    fim_jogo = False
+    fim_jogo_perdeu = False
+
+    # Posição inicial da cobrinha
+    x = largura / 2
+    y = altura / 2
+
+    # Controle da velocidade da cobra
+    x_velocidade = 0
+    y_velocidade = 0
+
+    # Guarda os blocos do corpo da cobra
+    corpo_cobra = []
+    comprimento_cobra = 1
+
+    # Coordenadas da comida
+    comida_x = round(random.randrange(0, largura - tamanho_bloco) / 10.0) * 10.0
+    comida_y = round(random.randrange(0, altura - tamanho_bloco) / 10.0) * 10.0
+
+    while not fim_jogo:
+
+        while fim_jogo_perdeu:
+            tela.fill(preto)
+            mensagem = fonte.render('Você perdeu! Pressione C para continuar ou Q para sair', True, vermelho)
+            tela.blit(mensagem, [largura / 6, altura / 3])
+            mostrar_pontuacao(comprimento_cobra - 1)
+            pygame.display.update()
+
+            for evento in pygame.event.get():
+                if evento.type == pygame.KEYDOWN:
+                    if evento.key == pygame.K_q:
+                        fim_jogo = True
+                        fim_jogo_perdeu = False
+                    if evento.key == pygame.K_c:
+                        gameLoop()
+
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                fim_jogo = True
+            if evento.type == pygame.KEYDOWN:
+                if evento.key == pygame.K_LEFT:
+                    x_velocidade = -tamanho_bloco
+                    y_velocidade = 0
+                elif evento.key == pygame.K_RIGHT:
+                    x_velocidade = tamanho_bloco
+                    y_velocidade = 0
+                elif evento.key == pygame.K_UP:
+                    y_velocidade = -tamanho_bloco
+                    x_velocidade = 0
+                elif evento.key == pygame.K_DOWN:
+                    y_velocidade = tamanho_bloco
+                    x_velocidade = 0
+
+        # Atualiza a posição da cobra
+        if x >= largura or x < 0 or y >= altura or y < 0:
+            fim_jogo_perdeu = True
+        x += x_velocidade
+        y += y_velocidade
+
+        # Preenche a tela de fundo
+        tela.fill(preto)
+
+        # Desenha a comida
+        pygame.draw.rect(tela, vermelho, [comida_x, comida_y, tamanho_bloco, tamanho_bloco])
+
+        # Atualiza o corpo da cobra
+        cabeca_cobra = []
+        cabeca_cobra.append(x)
+        cabeca_cobra.append(y)
+        corpo_cobra.append(cabeca_cobra)
+
+        if len(corpo_cobra) > comprimento_cobra:
+            del corpo_cobra[0]
+
+        # Se a cobra colidir consigo mesma
+        for bloco in corpo_cobra[:-1]:
+            if bloco == cabeca_cobra:
+                fim_jogo_perdeu = True
+
+        desenhar_cobrinha(tamanho_bloco, corpo_cobra)
+        mostrar_pontuacao(comprimento_cobra - 1)
+
+        pygame.display.update()
+
+        # Se a cobra comer a comida
+        if x == comida_x and y == comida_y:
+            comida_x = round(random.randrange(0, largura - tamanho_bloco) / 10.0) * 10.0
+            comida_y = round(random.randrange(0, altura - tamanho_bloco) / 10.0) * 10.0
+            comprimento_cobra += 1
+
+        clock.tick(velocidade)
+
+    pygame.quit()
+    quit()
+
+# Iniciar o jogo
+gameLoop()
