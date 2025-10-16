@@ -22,6 +22,17 @@ Sistema web para gestão de rotas e fretes com mapa interativo do Brasil e Colô
 - API REST para integração
 
 **Como executar:**
+
+Opção 1 - Script de inicialização (recomendado):
+```bash
+# Linux/Mac
+./iniciar_sistema.sh
+
+# Windows
+iniciar_sistema.bat
+```
+
+Opção 2 - Manual:
 ```bash
 pip install -r requirements.txt
 cd sistema_rotas_fretes
