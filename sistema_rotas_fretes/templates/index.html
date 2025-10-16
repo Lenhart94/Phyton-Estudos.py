@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestão de Rotas e Fretes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: #1e3c72;
+            margin-bottom: 20px;
+            font-size: 2em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .map-container {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .map-info {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 5px solid #667eea;
+        }
+
+        .estados-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .estado-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .estado-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .estado-card h3 {
+            font-size: 1.2em;
+            margin-bottom: 5px;
+        }
+
+        .estado-card p {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .colombia-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .contact-form {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #1e3c72;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .regiao-tag {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            margin-top: 5px;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        footer {
+            background: #1e3c72;
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .estados-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚚 Sistema de Gestão de Rotas e Fretes</h1>
+            <p>Cobertura em todo o Brasil e Colômbia</p>
+        </header>
+
+        <div class="content">
+            <!-- Seção do Mapa -->
+            <div class="section">
+                <h2>📍 Áreas de Representação</h2>
+                <div class="map-container">
+                    <div class="map-info">
+                        <h3>🇧🇷 Brasil - Cobertura Nacional</h3>
+                        <p>Nossa empresa possui representação em todos os estados brasileiros, organizados por região:</p>
+                    </div>
+
+                    <div class="estados-grid">
+                        {% for estado in representacoes.brasil.estados %}
+                        <div class="estado-card" onclick="selecionarEstado('{{ estado.sigla }}', '{{ estado.nome }}')">
+                            <h3>{{ estado.sigla }}</h3>
+                            <p>{{ estado.nome }}</p>
+                            <span class="regiao-tag">{{ estado.regiao }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="colombia-card">
+                        🇨🇴 Colômbia - Representação Internacional
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seção de Contato -->
+            <div class="section">
+                <h2>📞 Entre em Contato</h2>
+                <div class="contact-form">
+                    <div id="alert" class="alert"></div>
+                    
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <label for="nome">Nome Completo *</label>
+                            <input type="text" id="nome" name="nome" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">E-mail *</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="telefone">Telefone</label>
+                            <input type="tel" id="telefone" name="telefone" placeholder="(00) 00000-0000">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="estado">Estado/País *</label>
+                            <select id="estado" name="estado" required>
+                                <option value="">Selecione...</option>
+                                {% for estado in representacoes.brasil.estados %}
+                                <option value="{{ estado.sigla }}">{{ estado.nome }} ({{ estado.sigla }})</option>
+                                {% endfor %}
+                                <option value="CO">Colômbia</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="assunto">Assunto *</label>
+                            <select id="assunto" name="assunto" required>
+                                <option value="">Selecione...</option>
+                                <option value="orcamento">Solicitar Orçamento</option>
+                                <option value="rota">Informações sobre Rotas</option>
+                                <option value="frete">Consulta de Frete</option>
+                                <option value="representacao">Representação Comercial</option>
+                                <option value="outro">Outro</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="mensagem">Mensagem *</label>
+                            <textarea id="mensagem" name="mensagem" required placeholder="Descreva sua necessidade..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn">Enviar Contato</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>&copy; 2024 Sistema de Gestão de Rotas e Fretes | Cobertura Brasil e Colômbia</p>
+        </footer>
+    </div>
+
+    <script>
+        function selecionarEstado(sigla, nome) {
+            const estadoSelect = document.getElementById('estado');
+            estadoSelect.value = sigla;
+            
+            // Scroll suave até o formulário
+            document.getElementById('contactForm').scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'center'
+            });
+            
+            // Destacar o campo
+            estadoSelect.style.borderColor = '#667eea';
+            estadoSelect.style.boxShadow = '0 0 10px rgba(102, 126, 234, 0.5)';
+            setTimeout(() => {
+                estadoSelect.style.borderColor = '#ddd';
+                estadoSelect.style.boxShadow = 'none';
+            }, 2000);
+        }
+
+        document.getElementById('contactForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const alertDiv = document.getElementById('alert');
+            const submitBtn = this.querySelector('.btn');
+            
+            // Desabilita o botão durante o envio
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Enviando...';
+            
+            // Coleta os dados do formulário
+            const formData = {
+                nome: document.getElementById('nome').value,
+                email: document.getElementById('email').value,
+                telefone: document.getElementById('telefone').value,
+                estado: document.getElementById('estado').value,
+                assunto: document.getElementById('assunto').value,
+                mensagem: document.getElementById('mensagem').value
+            };
+            
+            try {
+                const response = await fetch('/api/contato', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.sucesso) {
+                    alertDiv.className = 'alert success';
+                    alertDiv.textContent = data.mensagem;
+                    alertDiv.style.display = 'block';
+                    
+                    // Limpa o formulário
+                    this.reset();
+                } else {
+                    alertDiv.className = 'alert error';
+                    alertDiv.textContent = data.mensagem;
+                    alertDiv.style.display = 'block';
+                }
+            } catch (error) {
+                alertDiv.className = 'alert error';
+                alertDiv.textContent = 'Erro ao enviar contato. Por favor, tente novamente.';
+                alertDiv.style.display = 'block';
+            } finally {
+                // Reabilita o botão
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Enviar Contato';
+                
+                // Scroll até o alerta
+                alertDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                
+                // Oculta o alerta após 5 segundos
+                setTimeout(() => {
+                    alertDiv.style.display = 'none';
+                }, 5000);
+            }
+        });
+    </script>
+</body>
+</html>
